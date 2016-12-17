@@ -45,28 +45,30 @@ const AppViewModel = DefineMap.extend({
    */
   page: {
     serialize: true,
-    get (page, setPage) {
-      if (page === 'logout') {
-        return this.logout();
-      }
-
-      if (pages[page]) {
-        // Logic for authenticated users.
-        if (this.session) {
-          if (page === 'home') {
-            page = 'dashboard';
-          }
-        // Logic for non-authenticated users.
-        } else {
-          if (pages[page] !== 'public') {
-            page = 'home';
-          }
+    stream (setStream) {
+      return setStream.zip(this.stream('.session'), (page, session) => {
+        if (page === 'logout') {
+          return this.logout();
         }
-      // 404 if the page isn't in the list of pages.
-      } else {
-        page = 'four-oh-four';
-      }
-      return page;
+
+        if (pages[page]) {
+          // Logic for authenticated users.
+          if (session) {
+            if (page === 'home') {
+              page = 'dashboard';
+            }
+          // Logic for non-authenticated users.
+          } else {
+            if (pages[page] !== 'public') {
+              page = 'home';
+            }
+          }
+        // 404 if the page isn't in the list of pages.
+        } else {
+          page = 'four-oh-four';
+        }
+        return page;
+      });
     }
   },
 
